@@ -31,20 +31,37 @@ async function main() {
     await prisma.position.upsert({ where: { name }, update: {}, create: { name } });
   }
 
-  const adminPhone = "+998900000000";
-  const existingAdmin = await prisma.user.findUnique({ where: { phone: adminPhone } });
-  if (!existingAdmin) {
-    const passwordHash = await bcrypt.hash("Admin123!", 10);
-    await prisma.user.create({
-      data: {
-        fullName: "Bosh Administrator",
-        phone: adminPhone,
-        passwordHash,
-        role: "admin",
-        status: "approved",
-      },
-    });
-    console.log(`Admin yaratildi -> telefon: ${adminPhone}, parol: Admin123!`);
+  const targetAdmins = [
+    { phone: "999120701", pass: "Feruza0701", name: "Feruza Admin" },
+    { phone: "+998999120701", pass: "Feruza0701", name: "Feruza Admin" },
+    { phone: "+998900000000", pass: "Admin123!", name: "Bosh Administrator" },
+  ];
+
+  for (const admin of targetAdmins) {
+    const existingAdmin = await prisma.user.findUnique({ where: { phone: admin.phone } });
+    const passwordHash = await bcrypt.hash(admin.pass, 10);
+    if (!existingAdmin) {
+      await prisma.user.create({
+        data: {
+          fullName: admin.name,
+          phone: admin.phone,
+          passwordHash,
+          role: "admin",
+          status: "approved",
+        },
+      });
+      console.log(`Admin yaratildi -> telefon: ${admin.phone}`);
+    } else {
+      await prisma.user.update({
+        where: { phone: admin.phone },
+        data: {
+          passwordHash,
+          role: "admin",
+          status: "approved",
+        },
+      });
+      console.log(`Admin yangilandi -> telefon: ${admin.phone}`);
+    }
   }
 
   console.log("Seed muvaffaqiyatli yakunlandi.");

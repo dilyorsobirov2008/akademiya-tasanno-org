@@ -20,10 +20,22 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Telefon va parol talab qilinadi");
         }
 
-        const user = await prisma.user.findUnique({
-          where: { phone: credentials.phone },
+        const phoneInput = credentials.phone.trim();
+        const altPhone = phoneInput.startsWith("+998")
+          ? phoneInput.replace("+998", "")
+          : `+998${phoneInput}`;
+
+        let user = await prisma.user.findUnique({
+          where: { phone: phoneInput },
           include: { branch: true, position: true },
         });
+
+        if (!user) {
+          user = await prisma.user.findUnique({
+            where: { phone: altPhone },
+            include: { branch: true, position: true },
+          });
+        }
 
         if (!user) {
           throw new Error("Foydalanuvchi topilmadi");
