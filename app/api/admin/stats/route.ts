@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/api-guard";
 
+// Vercel build vaqtida static generation'ni taqiqlash uchun
+export const dynamic = "force-dynamic";
+
 // GET /api/admin/stats -> Filiallar kesimida xodimlar soni, test natijalari, faollik
 export async function GET() {
   const { error } = await requireSession(true);

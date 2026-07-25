@@ -4,6 +4,8 @@ import { requireSession } from "@/lib/api-guard";
 import { videoSchema } from "@/lib/validations";
 import { getOptimizedMediaUrl } from "@/lib/cdn";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const { session, error } = await requireSession(false);
   if (error) return error;

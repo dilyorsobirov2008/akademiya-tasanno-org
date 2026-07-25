@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/api-guard";
 
+export const dynamic = "force-dynamic";
+
 // POST /api/videos/:id/watched -> video tomosha qilingan deb belgilash
 export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
   const { session, error } = await requireSession(false);
