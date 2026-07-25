@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/api-guard";
 import { guideSchema } from "@/lib/validations";
 
+export const dynamic = "force-dynamic";
+
+
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const { error } = await requireSession(true);
   if (error) return error;

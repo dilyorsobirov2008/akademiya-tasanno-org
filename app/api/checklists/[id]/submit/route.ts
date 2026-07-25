@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/api-guard";
 import { checklistSubmitSchema } from "@/lib/validations";
 
+export const dynamic = "force-dynamic";
+
 // POST /api/checklists/:id/submit  { periodDate, items: [{taskId, done}], note? }
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const { session, error } = await requireSession(false);

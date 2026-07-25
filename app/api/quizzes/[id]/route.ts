@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/api-guard";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/quizzes/:id -> testni topshirish uchun (to'g'ri javob yashirilgan)
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const { session, error } = await requireSession(false);
