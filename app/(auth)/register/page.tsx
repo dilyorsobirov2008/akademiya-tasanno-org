@@ -1,11 +1,20 @@
 import { prisma } from "@/lib/prisma";
 import { RegisterForm } from "@/components/register-form";
 
+export const dynamic = "force-dynamic";
+
 export default async function RegisterPage() {
-  const [branches, positions] = await Promise.all([
-    prisma.branch.findMany({ orderBy: { name: "asc" } }),
-    prisma.position.findMany({ orderBy: { name: "asc" } }),
-  ]);
+  let branches: any[] = [];
+  let positions: any[] = [];
+
+  try {
+    [branches, positions] = await Promise.all([
+      prisma.branch.findMany({ orderBy: { name: "asc" } }),
+      prisma.position.findMany({ orderBy: { name: "asc" } }),
+    ]);
+  } catch (err) {
+    console.error("Failed to fetch branches/positions during render:", err);
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
