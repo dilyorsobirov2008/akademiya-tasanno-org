@@ -1,6 +1,6 @@
 // ==========================================================
 // ICHKI AKADEMIYA — Prisma Schema
-// SQLite + Next.js 14 (App Router)
+// PostgreSQL + Next.js 14 (App Router)
 // ==========================================================
 
 generator client {
@@ -8,7 +8,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
