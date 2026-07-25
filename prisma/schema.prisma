@@ -1,0 +1,336 @@
+// ==========================================================
+// ICHKI AKADEMIYA — Prisma Schema
+// SQLite + Next.js 14 (App Router)
+// ==========================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------
+// ORGANIZATION STRUCTURE
+// ---------------------------------------------------------
+
+model Branch {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users            User[]
+  guides           Guide[]
+  videos           Video[]
+  quizzes          Quiz[]
+  checklists       Checklist[]
+  checklistEntries ChecklistEntry[]
+
+  @@map("branches")
+}
+
+model Position {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users      User[]
+  guides     Guide[]
+  videos     Video[]
+  quizzes    Quiz[]
+  checklists Checklist[]
+
+  @@map("positions")
+}
+
+// ---------------------------------------------------------
+// USERS
+// ---------------------------------------------------------
+
+model User {
+  id           String   @id @default(cuid())
+  fullName     String
+  phone        String   @unique
+  passwordHash String
+  role         String   @default("employee") // "admin" | "employee"
+  status       String   @default("pending")  // "pending" | "approved" | "rejected"
+
+  branchId   String?
+  branch     Branch?   @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  positionId String?
+  position   Position? @relation(fields: [positionId], references: [id], onDelete: SetNull)
+
+  quizResults      QuizResult[]
+  checklistEntries ChecklistEntry[]
+  watchedVideos    VideoWatched[]
+  courseProgress   UserCourseProgress[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([branchId])
+  @@index([positionId])
+  @@index([status])
+  @@index([role])
+  @@index([branchId, positionId, status])
+  @@map("users")
+}
+
+// ---------------------------------------------------------
+// CONTENT: GUIDES (PDF)
+// ---------------------------------------------------------
+
+model Guide {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  fileUrl     String
+  fileSize    Int?     // bytes
+  scope       String   @default("GLOBAL") // "GLOBAL" | "BRANCH" | "POSITION"
+
+  branchId   String?
+  branch     Branch?   @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  positionId String?
+  position   Position? @relation(fields: [positionId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([branchId])
+  @@index([positionId])
+  @@index([scope])
+  @@index([scope, branchId, positionId])
+  @@map("guides")
+}
+
+// ---------------------------------------------------------
+// CONTENT: VIDEOS (COURSE LESSONS)
+// ---------------------------------------------------------
+
+model Video {
+  id          String   @id @default(cuid())
+  order       Int      @default(1)
+  title       String
+  description String?
+  videoUrl    String
+  thumbnail   String?
+  duration    Int?     // sekundlarda
+  scope       String   @default("GLOBAL") // "GLOBAL" | "BRANCH" | "POSITION"
+
+  quizId String?
+  quiz   Quiz?   @relation(fields: [quizId], references: [id], onDelete: SetNull)
+
+  branchId   String?
+  branch     Branch?   @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  positionId String?
+  position   Position? @relation(fields: [positionId], references: [id], onDelete: SetNull)
+
+  watchedBy      VideoWatched[]
+  courseProgress UserCourseProgress[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([branchId])
+  @@index([positionId])
+  @@index([order])
+  @@index([scope])
+  @@index([scope, branchId, positionId])
+  @@map("videos")
+}
+
+model VideoWatched {
+  id        String   @id @default(cuid())
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([videoId, userId])
+  @@index([userId])
+  @@index([videoId])
+  @@map("video_watched")
+}
+
+// ---------------------------------------------------------
+// USER COURSE PROGRESS (Sequential Gatekeeper)
+// ---------------------------------------------------------
+
+model UserCourseProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  videoId     String
+  isCompleted Boolean  @default(false)
+  quizScore   Int      @default(0)
+  isPassed    Boolean  @default(false)
+  unlockedAt  DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
+  @@index([userId])
+  @@index([videoId])
+  @@index([isPassed])
+  @@map("user_course_progress")
+}
+
+// ---------------------------------------------------------
+// CONTENT: QUIZZES
+// ---------------------------------------------------------
+
+model Quiz {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  scope       String   @default("GLOBAL") // "GLOBAL" | "BRANCH" | "POSITION"
+  passScore   Int      @default(80)       // % da o'tish balli (80% = 8/10)
+
+  branchId   String?
+  branch     Branch?   @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  positionId String?
+  position   Position? @relation(fields: [positionId], references: [id], onDelete: SetNull)
+
+  questions Question[]
+  results   QuizResult[]
+  videos    Video[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([branchId])
+  @@index([positionId])
+  @@index([scope])
+  @@map("quizzes")
+}
+
+model Question {
+  id      String @id @default(cuid())
+  quizId  String
+  quiz    Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  text    String
+  order   Int    @default(0)
+
+  options Option[]
+
+  @@index([quizId])
+  @@map("questions")
+}
+
+model Option {
+  id         String   @id @default(cuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  isCorrect  Boolean  @default(false)
+
+  @@index([questionId])
+  @@map("options")
+}
+
+model QuizResult {
+  id     String @id @default(cuid())
+  quizId String
+  quiz   Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  score   Int     // to'g'ri javoblar %
+  correct Int
+  total   Int
+  answers String  // JSON string: { questionId: optionId }
+  passed  Boolean
+
+  createdAt DateTime @default(now())
+
+  @@index([quizId])
+  @@index([userId])
+  @@index([userId, quizId])
+  @@index([passed])
+  @@map("quiz_results")
+}
+
+// ---------------------------------------------------------
+// CONTENT: CHECKLISTS
+// ---------------------------------------------------------
+
+model Checklist {
+  id        String   @id @default(cuid())
+  title     String
+  frequency String   @default("DAILY")  // "DAILY" | "WEEKLY"
+  scope     String   @default("GLOBAL") // "GLOBAL" | "BRANCH" | "POSITION"
+
+  branchId   String?
+  branch     Branch?   @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  positionId String?
+  position   Position? @relation(fields: [positionId], references: [id], onDelete: SetNull)
+
+  tasks   ChecklistTask[]
+  entries ChecklistEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([branchId])
+  @@index([positionId])
+  @@index([scope])
+  @@map("checklists")
+}
+
+model ChecklistTask {
+  id          String    @id @default(cuid())
+  checklistId String
+  checklist   Checklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+  label       String
+  order       Int       @default(0)
+
+  itemResults ChecklistItemResult[]
+
+  @@index([checklistId])
+  @@map("checklist_tasks")
+}
+
+model ChecklistEntry {
+  id          String    @id @default(cuid())
+  checklistId String
+  checklist   Checklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  branchId    String?
+  branch      Branch?   @relation(fields: [branchId], references: [id])
+
+  periodDate DateTime
+  completed  Boolean  @default(false)
+  note       String?
+
+  items ChecklistItemResult[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([checklistId, userId, periodDate])
+  @@index([userId])
+  @@index([branchId])
+  @@index([checklistId])
+  @@index([periodDate])
+  @@map("checklist_entries")
+}
+
+model ChecklistItemResult {
+  id      String         @id @default(cuid())
+  entryId String
+  entry   ChecklistEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  taskId  String
+  task    ChecklistTask  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  done    Boolean        @default(false)
+
+  @@unique([entryId, taskId])
+  @@index([entryId])
+  @@index([taskId])
+  @@map("checklist_item_results")
+}
