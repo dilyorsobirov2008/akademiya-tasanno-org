@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/api-guard";
 import { invalidateVideosCache } from "@/lib/cache";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   const { error } = await requireSession(true);
   if (error) return error;

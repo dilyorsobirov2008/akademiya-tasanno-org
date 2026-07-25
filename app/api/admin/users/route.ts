@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/api-guard";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/admin/users?status=pending&branchId=...&positionId=...
 export async function GET(req: NextRequest) {
   const { error } = await requireSession(true);

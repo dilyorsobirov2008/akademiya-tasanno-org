@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/api-guard";
 import { quizSchema } from "@/lib/validations";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const { session, error } = await requireSession(false);
   if (error) return error;

@@ -3,6 +3,8 @@ import { requireSession } from "@/lib/api-guard";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   const { error } = await requireSession(true);
   if (error) return error;

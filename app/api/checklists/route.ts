@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/api-guard";
 import { checklistSchema } from "@/lib/validations";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   const { session, error } = await requireSession(false);
   if (error) return error;

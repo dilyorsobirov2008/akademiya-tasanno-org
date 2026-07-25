@@ -5,6 +5,8 @@ import { videoSchema } from "@/lib/validations";
 import { getOptimizedMediaUrl } from "@/lib/cdn";
 import { invalidateVideosCache } from "@/lib/cache";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const { session, error } = await requireSession(false);
   if (error) return error;
