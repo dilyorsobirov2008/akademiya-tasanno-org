@@ -59,7 +59,16 @@ export default async function DashboardPage() {
       <div className="card mt-6 p-6">
         <h2 className="font-semibold text-slate-900">So'nggi test natijalari</h2>
         {recentResults.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-500">Hali test topshirmagansiz.</p>
+          <div className="mt-3 space-y-4">
+            <p className="text-sm text-slate-500">Hali test topshirmagansiz.</p>
+            <div className="overflow-hidden rounded-2xl shadow-lg border border-slate-100/80">
+              <img
+                src="/images/tasanno-team.jpg"
+                alt="Tasanno jamoasi"
+                className="w-full h-48 sm:h-64 md:h-80 lg:h-96 object-cover rounded-2xl shadow-md transition-transform duration-300 hover:scale-[1.01]"
+              />
+            </div>
+          </div>
         ) : (
           <ul className="mt-3 divide-y divide-slate-100">
             {recentResults.map((r) => (
