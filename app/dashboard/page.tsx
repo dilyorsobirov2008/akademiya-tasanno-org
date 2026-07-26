@@ -62,7 +62,7 @@ export default async function DashboardPage() {
           <div>
             <p className="mt-3 text-sm text-slate-500">Hali test topshirmagansiz.</p>
             <img
-              src="/tasanno-jamoasi.jpg"
+              src="/tasanno.png"
               alt="Tasanno jamoasi"
               className="w-full h-auto rounded-xl mt-4 shadow-sm object-cover"
             />
