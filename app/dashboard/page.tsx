@@ -61,13 +61,11 @@ export default async function DashboardPage() {
         {recentResults.length === 0 ? (
           <div>
             <p className="mt-3 text-sm text-slate-500">Hali test topshirmagansiz.</p>
-            <div className="mt-4 overflow-hidden rounded-2xl shadow-md border border-slate-100">
-              <img
-                src="/tasanno-jamoasi.jpg"
-                alt="Tasanno jamoasi"
-                className="w-full h-auto object-cover rounded-2xl transition-transform duration-300 hover:scale-[1.01]"
-              />
-            </div>
+            <img
+              src="/tasanno-jamoasi.jpg"
+              alt="Tasanno jamoasi"
+              className="w-full h-auto rounded-xl mt-4 shadow-sm object-cover"
+            />
           </div>
         ) : (
           <ul className="mt-3 divide-y divide-slate-100">
